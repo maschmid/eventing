@@ -281,18 +281,18 @@ func CreateServiceAccount(clients *test.Clients, sa *corev1.ServiceAccount, _ lo
 	return nil
 }
 
-// CreateClusterRoleBinding will create a service account binding.
-func CreateClusterRoleBinding(clients *test.Clients, crb *rbacv1.ClusterRoleBinding, _ logging.FormatLogger, cleaner *test.Cleaner) error {
-	clusterRoleBindings := clients.Kube.Kube.RbacV1().ClusterRoleBindings()
-	res, err := clusterRoleBindings.Create(crb)
+func CreateRoleBinding(clients *test.Clients, namespace string, crb *rbacv1.RoleBinding, _ logging.FormatLogger, cleaner *test.Cleaner) error {
+	roleBindings := clients.Kube.Kube.RbacV1().RoleBindings(namespace)
+	res, err := roleBindings.Create(crb)
 	if err != nil {
 		return err
 	}
-	cleaner.Add(rbacv1.SchemeGroupVersion.Group, rbacv1.SchemeGroupVersion.Version, "clusterrolebindings", "", res.ObjectMeta.Name)
+	cleaner.Add(rbacv1.SchemeGroupVersion.Group, rbacv1.SchemeGroupVersion.Version, "rolebindings", namespace, res.ObjectMeta.Name)
 	return nil
 }
 
-// CreateServiceAccountAndBinding creates both ServiceAccount and ClusterRoleBinding with default
+
+// CreateServiceAccountAndBinding creates both ServiceAccount and RoleBinding with default
 // cluster-admin role.
 func CreateServiceAccountAndBinding(clients *test.Clients, saName, crName, namespace string, logf logging.FormatLogger, cleaner *test.Cleaner) error {
 	sa := &corev1.ServiceAccount{
@@ -305,7 +305,7 @@ func CreateServiceAccountAndBinding(clients *test.Clients, saName, crName, names
 	if err != nil {
 		return err
 	}
-	crb := &rbacv1.ClusterRoleBinding{
+	crb := &rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: fmt.Sprintf("%s-%s-admin", sa.Name, sa.Namespace),
 		},
@@ -322,7 +322,7 @@ func CreateServiceAccountAndBinding(clients *test.Clients, saName, crName, names
 			APIGroup: "rbac.authorization.k8s.io",
 		},
 	}
-	err = CreateClusterRoleBinding(clients, crb, logf, cleaner)
+	err = CreateRoleBinding(clients, namespace, crb, logf, cleaner)
 	if err != nil {
 		return err
 	}

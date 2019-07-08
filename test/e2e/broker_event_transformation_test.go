@@ -65,7 +65,7 @@ func TestEventTransformationForTrigger(t *testing.T) {
 	clients, ns, provisioner, cleaner := Setup(t, true, t.Logf)
 	defer TearDown(clients, ns, cleaner, t.Logf)
 
-	// creates ServiceAccount and ClusterRoleBinding with default cluster-admin role
+	// creates ServiceAccount and RoleBinding with default cluster-admin role
 	err := CreateServiceAccountAndBinding(clients, saName, crName, ns, t.Logf, cleaner)
 	if err != nil {
 		t.Fatalf("Failed to create the ServiceAccount and ServiceAccountRoleBinding: %v", err)
